@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta
+      name="description"
+      content="Sign in to your WeduPay account and get ready to pay online with your mobile wallet."
+    >
+    <meta name="theme-color" content="#f3f7fc">
+    <title>Sign in — WeduPay</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    >
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
+    <script src="auth.js" defer></script>
+  </head>
+  <body class="auth-page">
+    <a class="skip-link" href="#auth-main">Skip to sign in</a>
+    <main class="auth-layout" id="auth-main">
+      <a class="auth-back-link" href="index.html"><span aria-hidden="true">←</span> Back to home</a>
+
+      <section class="auth-panel" aria-labelledby="auth-title">
+        <a class="brand auth-brand" href="index.html" aria-label="WeduPay home">
+          <span class="brand-mark" aria-hidden="true">W</span>
+          <span class="brand-name">wedu<span>pay</span></span>
+        </a>
+        <p class="auth-eyebrow"><span class="eyebrow-dot"></span> Your wallet belongs online</p>
+        <h1 id="auth-title">Sign in to your account</h1>
+        <p class="auth-subtitle" id="auth-subtitle">Pay online with the wallet you already use.</p>
+
+        <div class="auth-card">
+          <div class="auth-message" id="auth-message" role="status" aria-live="polite" hidden></div>
+
+          <form id="sign-in-form" class="auth-form" novalidate>
+            <label for="sign-in-phone">Phone number</label>
+            <div class="phone-field">
+              <select id="sign-in-country" name="country-code" aria-label="Country calling code">
+                <option value="+263">ZW +263</option>
+                <option value="+260">ZM +260</option>
+                <option value="+265">MW +265</option>
+                <option value="+258">MZ +258</option>
+              </select>
+              <input id="sign-in-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="Your mobile number" required>
+            </div>
+
+            <label for="sign-in-password">Password</label>
+            <div class="password-field">
+              <input id="sign-in-password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required>
+              <button class="password-toggle" type="button" aria-pressed="false" aria-label="Show password" data-password-toggle="sign-in-password">Show</button>
+            </div>
+
+            <div class="auth-options">
+              <label class="remember-option" for="remember-me">
+                <input id="remember-me" name="remember" type="checkbox">
+                <span>Remember me</span>
+              </label>
+              <button class="inline-link" type="button" data-mode="forgot">Forgot password?</button>
+            </div>
+
+            <button class="button button-primary auth-submit" type="submit">
+              <span class="button-label">Sign in</span>
+              <span class="button-spinner" aria-hidden="true"></span>
+            </button>
+            <p class="auth-switch">Don't have an account? <button class="inline-link" type="button" data-mode="signup">Create one now</button></p>
+          </form>
+
+          <form id="create-account-form" class="auth-form" hidden novalidate>
+            <div class="signup-credentials">
+              <label for="create-phone">Phone number</label>
+              <div class="phone-field">
+                <select id="create-country" name="country-code" aria-label="Country calling code">
+                  <option value="+263">ZW +263</option>
+                  <option value="+260">ZM +260</option>
+                  <option value="+265">MW +265</option>
+                  <option value="+258">MZ +258</option>
+                </select>
+                <input id="create-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="Your mobile number" required>
+              </div>
+
+              <label for="create-password">Create a password</label>
+              <div class="password-field">
+                <input id="create-password" name="password" type="password" autocomplete="new-password" minlength="8" placeholder="At least 8 characters" required>
+                <button class="password-toggle" type="button" aria-pressed="false" aria-label="Show password" data-password-toggle="create-password">Show</button>
+              </div>
+
+              <label for="confirm-password">Confirm password</label>
+              <input id="confirm-password" name="confirm-password" type="password" autocomplete="new-password" minlength="8" placeholder="Enter your password again" required>
+
+              <button class="button button-primary auth-submit" type="submit">
+                <span class="button-label">Create account</span>
+                <span class="button-spinner" aria-hidden="true"></span>
+              </button>
+            </div>
+            <div class="signup-verification" hidden>
+              <p class="form-intro">Enter the verification code sent by SMS to <strong id="signup-phone-display"></strong>.</p>
+              <label for="signup-code">SMS verification code</label>
+              <input id="signup-code" name="signup-code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" placeholder="Enter your code" required>
+              <button class="button button-primary auth-submit" type="submit">
+                <span class="button-label">Verify phone number</span>
+                <span class="button-spinner" aria-hidden="true"></span>
+              </button>
+            </div>
+            <p class="auth-switch">Already have an account? <button class="inline-link" type="button" data-mode="login">Sign in</button></p>
+          </form>
+
+          <form id="forgot-password-form" class="auth-form" hidden novalidate>
+            <p class="form-intro">Enter the phone number on your account and we'll text you a verification code to reset your password.</p>
+            <label for="reset-phone">Phone number</label>
+            <div class="phone-field">
+              <select id="reset-country" name="country-code" aria-label="Country calling code">
+                <option value="+263">ZW +263</option>
+                <option value="+260">ZM +260</option>
+                <option value="+265">MW +265</option>
+                <option value="+258">MZ +258</option>
+              </select>
+              <input id="reset-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="Your mobile number" required>
+            </div>
+            <button class="button button-primary auth-submit" type="submit">
+              <span class="button-label">Send verification code</span>
+              <span class="button-spinner" aria-hidden="true"></span>
+            </button>
+            <p class="auth-switch"><button class="inline-link" type="button" data-mode="login">Back to sign in</button></p>
+          </form>
+
+          <form id="update-password-form" class="auth-form" hidden novalidate>
+            <p class="form-intro">Enter the SMS code we sent to <strong id="recovery-phone-display"></strong>, then choose a new password.</p>
+            <div class="recovery-verification">
+              <label for="recovery-code">SMS verification code</label>
+              <input id="recovery-code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" placeholder="Enter your code" required>
+              <button class="button button-primary auth-submit" type="submit">
+                <span class="button-label">Verify phone number</span>
+                <span class="button-spinner" aria-hidden="true"></span>
+              </button>
+            </div>
+            <div class="recovery-password" hidden>
+              <p class="form-intro">Phone verified. Now choose a new password.</p>
+              <label for="new-password">New password</label>
+              <div class="password-field">
+                <input id="new-password" name="password" type="password" autocomplete="new-password" minlength="8" placeholder="At least 8 characters" required>
+                <button class="password-toggle" type="button" aria-pressed="false" aria-label="Show password" data-password-toggle="new-password">Show</button>
+              </div>
+              <label for="confirm-new-password">Confirm new password</label>
+              <input id="confirm-new-password" name="confirm-password" type="password" autocomplete="new-password" minlength="8" placeholder="Enter your new password again" required>
+              <button class="button button-primary auth-submit" type="submit">
+                <span class="button-label">Update password</span>
+                <span class="button-spinner" aria-hidden="true"></span>
+              </button>
+            </div>
+          </form>
+
+          <section class="signed-in-state" id="signed-in-state" hidden aria-live="polite">
+            <span class="signed-in-icon" aria-hidden="true">✓</span>
+            <h2>You're signed in</h2>
+            <p id="signed-in-phone"></p>
+            <p class="form-intro">Your WeduPay account is ready. Payment services are still in development and aren't available yet.</p>
+            <a class="button button-primary auth-submit" href="index.html">Back to WeduPay</a>
+            <button class="inline-link sign-out-button" type="button" id="sign-out-button">Sign out</button>
+          </section>
+
+          <p class="auth-footnote"><span aria-hidden="true">✦</span> WeduPay is in development and is not currently processing payments.</p>
+        </div>
+        <p class="auth-affiliation">WeduPay is independent and is not affiliated with or endorsed by BYU-Pathway Worldwide.</p>
+      </section>
+
+    </main>
+  </body>
+</html>

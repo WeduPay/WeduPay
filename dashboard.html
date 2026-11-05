@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Explore the WeduPay customer dashboard preview. No account or payment service is active.">
+    <meta name="theme-color" content="#0a1d35">
+    <title>Customer dashboard — WeduPay preview</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/merchant-registry.js" defer></script>
+    <script src="/dashboard.js" defer></script>
+  </head>
+  <body class="dashboard-page">
+    <a class="skip-link" href="#dashboard-main">Skip to dashboard content</a>
+    <div class="dashboard-layout">
+      <aside class="dashboard-sidebar" id="dashboard-sidebar" aria-label="Dashboard navigation">
+        <a class="dashboard-brand" href="/" aria-label="WeduPay home"><span class="brand-name">Wedu<span>Pay</span></span><small>CUSTOMER PREVIEW</small></a>
+        <nav class="dashboard-nav" aria-label="Customer dashboard">
+          <a href="#overview" data-route="overview"><span aria-hidden="true">⌂</span>Overview</a>
+          <a href="#merchants" data-route="merchants"><span aria-hidden="true">◈</span>Merchant Directory</a>
+          <a href="#education" data-route="education"><span aria-hidden="true">▤</span>Education Payments</a>
+          <a href="#digital" data-route="digital"><span aria-hidden="true">◉</span>Digital Services</a>
+          <a href="#ecommerce" data-route="ecommerce"><span aria-hidden="true">▦</span>E-commerce</a>
+          <a href="#transactions" data-route="transactions"><span aria-hidden="true">↗</span>Transactions</a>
+          <a href="#payment-methods" data-route="payment-methods"><span aria-hidden="true">◌</span>Payment Methods</a>
+          <a href="#profile" data-route="profile"><span aria-hidden="true">○</span>Profile &amp; Settings</a>
+          <a href="#help" data-route="help"><span aria-hidden="true">?</span>Help &amp; Support</a>
+        </nav>
+        <div class="dashboard-sidebar-bottom">
+          <p>WeduPay is not a wallet. No funds are held here.</p>
+          <a href="/">← Back to WeduPay site</a>
+        </div>
+      </aside>
+
+      <div class="dashboard-main-column">
+        <header class="dashboard-topbar">
+          <button class="dashboard-menu-toggle" id="dashboard-menu-toggle" type="button" aria-expanded="false" aria-controls="dashboard-sidebar" aria-label="Open dashboard menu">
+            <span></span><span></span><span></span>
+          </button>
+          <p class="dashboard-topbar-label">Customer dashboard <span>Preview</span></p>
+          <div class="dashboard-topbar-links"><a href="/">WeduPay home</a><a href="/sign-in.html">Sign in</a></div>
+        </header>
+        <main class="dashboard-content" id="dashboard-main">
+          <div class="dashboard-preview-banner" id="dashboard-preview-banner" role="note">
+            <span aria-hidden="true">i</span>
+            <p><strong>Concept preview only.</strong> No account, merchant integration or payment channel is connected. Nothing entered here is sent or saved, and no payment can be made.</p>
+          </div>
+          <div id="dashboard-view" aria-live="polite"></div>
+          <noscript><p class="dashboard-noscript">Enable JavaScript to explore the dashboard preview. No account or payment service is active.</p></noscript>
+        </main>
+      </div>
+    </div>
+  </body>
+</html>

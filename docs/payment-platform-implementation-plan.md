@@ -7,7 +7,7 @@
 - The customer-facing site is static HTML, CSS, and browser JavaScript served from Vercel.
 - `index.html`, `sign-in.html`, and `dashboard.html` are linked as the landing page, phone-number demo route, and public customer dashboard preview.
 - The sign-in page accepts only a fictional demo number to navigate to the preview. It does not authenticate a customer or verify a phone number.
-- `dashboard.js` renders the overview, merchant categories, empty account states, and a tuition demo flow. When configured, that flow posts only the selected merchant, country, provider, amount, and currency to a sandbox endpoint; it never sends the student reference or phone number.
+- `dashboard.js` renders the overview, merchant categories, empty account states, and a browser-only tuition demo flow. Demo fields remain in the browser and are discarded on reload or navigation.
 - `merchant-registry.js` is frontend planning data. Merchant/provider names do not indicate availability, agreements, or integrations.
 - The only API function is `api/waitlist.js`. It is configuration-gated, handles waitlist collection only, and writes to the waitlist table through Supabase REST.
 - `supabase/waitlist.sql` defines only the waitlist table. It has no customer, payment, transaction, ledger, webhook, or settlement schema.
@@ -41,7 +41,7 @@ Inventory the existing frontend, Vercel function, database schema, deployment co
 5. Add authentication and role checks before any customer-specific or administrative API is exposed.
 6. Add automated tests for state transitions, duplicate requests, invalid amounts/currency, and unauthorized access.
 
-The first website-connected slice is implemented: a disabled-by-default Vercel sandbox endpoint creates and retrieves an expiring demonstration-only preview record. Its database schema uses a precise numeric amount, a unique idempotency key, a simulated event, and seven-day expiry. The UI displays the backend record and explicitly marks every unperformed provider, authorization, debit, merchant, and settlement stage. This is not yet a real payment intent, provider adapter, or ledger. The migration and server-side environment configuration must be applied before the endpoint can be exercised on Vercel.
+The browser-only tuition demo is connected to the public dashboard and explicitly marks provider instruction, authorization, debit, merchant payment, and settlement as not performed. Separate, disabled-by-default Vercel sandbox endpoints and a Supabase schema are available for later backend testing, but the public demo does not call them. Neither the browser flow nor those optional sandbox endpoints implement a real payment intent, provider adapter, or financial ledger.
 
 ### Phase 3 — Accounting and pricing
 

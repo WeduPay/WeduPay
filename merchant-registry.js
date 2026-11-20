@@ -1,4 +1,4 @@
-window.WeduPayMerchants = Object.freeze([
+const merchants = Object.freeze([
   Object.freeze({
     id: "byu-pathway",
     name: "BYU-Pathway Worldwide",
@@ -50,3 +50,26 @@ window.WeduPayMerchants = Object.freeze([
     enabled: false,
   }),
 ]);
+
+const providersByCountry = Object.freeze({
+  Zimbabwe: Object.freeze(["EcoCash", "InnBucks", "Mukuru Wallet", "OMari"]),
+  Zambia: Object.freeze(["MTN MoMo", "Airtel Money", "Zamtel Kwacha"]),
+  Malawi: Object.freeze(["Airtel Money", "TNM Mpamba"]),
+  Mozambique: Object.freeze(["M-Pesa", "e-Mola", "Mkesh"]),
+});
+
+const currenciesByCountry = Object.freeze({
+  Zimbabwe: Object.freeze(["USD", "ZWL"]),
+  Zambia: Object.freeze(["USD", "ZMW"]),
+  Malawi: Object.freeze(["USD", "MWK"]),
+  Mozambique: Object.freeze(["USD", "MZN"]),
+});
+
+if (typeof window !== "undefined") {
+  window.WeduPayMerchants = merchants;
+  window.WeduPayPaymentOptions = Object.freeze({ providersByCountry, currenciesByCountry });
+}
+
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = Object.freeze({ merchants, providersByCountry, currenciesByCountry });
+}

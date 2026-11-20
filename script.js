@@ -43,6 +43,13 @@ if (waitlistForm && waitlistFields && formStatus) {
     waitlistFields.replaceChildren(template.content.cloneNode(true));
   }
 
+  if (window.location.hostname.endsWith(".github.io")) {
+    showFormStatus("The waitlist is not available on this static presentation site. No details were collected.");
+    waitlistForm.querySelectorAll("input, select, button").forEach((field) => {
+      field.disabled = true;
+    });
+  }
+
   document.querySelectorAll('input[name="audience"]').forEach((input) => {
     input.addEventListener("change", () => {
       renderFields(input.value);
@@ -60,6 +67,11 @@ if (waitlistForm && waitlistFields && formStatus) {
   waitlistForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     formStatus.hidden = true;
+
+    if (window.location.hostname.endsWith(".github.io")) {
+      showFormStatus("The waitlist is not available on this static presentation site. No details were collected.");
+      return;
+    }
 
     if (submitting) {
       return;
@@ -117,7 +129,7 @@ if (signInForm) {
     const demoNumber = "12025550147";
 
     if (enteredNumber === demoNumber) {
-      window.location.assign("/dashboard.html?demo=1");
+      window.location.assign("./dashboard.html?demo=1");
       return;
     }
 

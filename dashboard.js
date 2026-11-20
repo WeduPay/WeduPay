@@ -1,5 +1,6 @@
 const dashboardView = document.querySelector("#dashboard-view");
 const merchantRegistry = window.WeduPayMerchants || [];
+const paymentOptions = window.WeduPayPaymentOptions || { providersByCountry: {}, currenciesByCountry: {} };
 const previewBanner = document.querySelector("#dashboard-preview-banner");
 if (new URLSearchParams(window.location.search).get("demo") === "1") {
   const message = createElement("p");
@@ -7,13 +8,6 @@ if (new URLSearchParams(window.location.search).get("demo") === "1") {
   message.append(document.createTextNode("The sample number was accepted only to preview this dashboard; no phone verification or real sign-in occurred. No number was sent or saved."));
   previewBanner.replaceChildren(createElement("span", "", "i"), message);
 }
-const countryProviders = {
-  Zimbabwe: ["EcoCash", "InnBucks", "Mukuru Wallet", "OMari"],
-  Zambia: ["MTN MoMo", "Airtel Money", "Zamtel Kwacha"],
-  Malawi: ["Airtel Money", "TNM Mpamba"],
-  Mozambique: ["M-Pesa", "e-Mola", "Mkesh"],
-};
-
 function createElement(tag, className, text) {
   const element = document.createElement(tag);
   if (className) element.className = className;
@@ -127,19 +121,22 @@ function paymentForm(merchant) {
     </select>
     <label for="student-reference">Student reference</label>
     <input id="student-reference" name="reference" type="text" maxlength="80" autocomplete="off" placeholder="Enter a demo reference" required>
-    <p class="payment-field-note">Do not enter your password or any account login credentials. This preview does not send or save the reference.</p>
+    <p class="payment-field-note">This stays in your browser and is not sent to WeduPay. Do not enter a password or login credentials.</p>
     <label for="payment-amount">Intended payment amount</label>
     <input id="payment-amount" name="amount" type="number" min="0.01" max="1000000" step="0.01" inputmode="decimal" placeholder="0.00" required>
     <label for="payment-currency">Currency</label>
-    <select id="payment-currency" name="currency" required><option value="">Select currency</option><option>USD</option><option>ZWL</option><option>ZMW</option><option>MWK</option><option>MZN</option><option>ZAR</option></select>
+    <select id="payment-currency" name="currency" required disabled><option value="">Select country first</option></select>
     <label for="payment-provider">Mobile money provider</label>
     <select id="payment-provider" name="provider" required disabled><option value="">Select country first</option></select>
     <label for="payment-phone">Registered phone number</label>
     <input id="payment-phone" name="phone" type="tel" inputmode="tel" maxlength="32" autocomplete="off" placeholder="Provider-registered number" required>
-    <p class="payment-field-note">Choose your provider explicitly. WeduPay does not infer a wallet from your number. The provider list contains examples only; no option is connected.</p>
-    <button class="dashboard-primary-link" type="submit">Review demo details <span aria-hidden="true">→</span></button>
+    <p class="payment-field-note">Choose explicitly. WeduPay does not infer a wallet from your number. Provider names are examples only and are not connected. The sandbox stores a time-limited demo record and random reference, not your phone number or student reference.</p>
+    <button class="dashboard-primary-link" type="submit">Create demo preview <span aria-hidden="true">→</span></button>
     <p class="payment-form-status" id="payment-form-status" role="status" aria-live="polite" hidden></p>`;
   form.dataset.merchant = merchant.id;
+  form.addEventListener("input", () => {
+    delete form.dataset.idempotencyKey;
+  });
   return form;
 }
 
@@ -156,32 +153,37 @@ function paymentPreview(merchant) {
   const side = createElement("aside", "payment-info-panel");
   side.append(createElement("span", "payment-info-icon", "▤"));
   side.append(createElement("h2", "", "Tuition payment concept"));
-  side.append(createElement("p", "", "The future service would require verified merchant requirements and an authorised provider integration before accepting a payment."));
+  side.append(createElement("p", "", "This preview records a demonstration request only. It never contacts a provider, asks for a PIN, moves funds, or confirms a merchant payment."));
   side.append(createElement("p", "payment-info-warning", "Do not enter real account passwords, PINs, or sensitive information."));
   grid.append(panel, side);
   screen.append(grid);
   return screen;
 }
 
-function showReview(details, merchant) {
+function showReview(details, merchant, preview) {
   dashboardView.replaceChildren();
   const back = createElement("a", "dashboard-back-link", "← Edit demo details");
   back.href = `#pay/${merchant.id}`;
   dashboardView.append(back);
-  dashboardView.append(pageHeading("Payment journey · Preview", "Review payment details", "This review is local to your browser. Nothing has been submitted."));
-  dashboardView.insertAdjacentHTML("beforeend", previewCallout("Fees: not available. Exchange rate: not available. Total payable cannot be calculated. No provider authorisation is available."));
+  dashboardView.append(pageHeading("Payment journey · Demonstration", "Demo request created", "This is a demonstration record, not a payment. Nothing was sent to a merchant or provider."));
+  dashboardView.insertAdjacentHTML("beforeend", previewCallout("DEMONSTRATION ONLY. No payment instruction was submitted, no provider authorisation was requested, and no funds moved. Fees and exchange rates are not calculated."));
   const review = createElement("section", "payment-review-card");
-  review.append(createElement("p", "dashboard-eyebrow", "Demo review only"));
+  review.append(createElement("p", "dashboard-eyebrow", "DEMONSTRATION · No real payment"));
   review.append(createElement("h2", "", merchant.name));
+  const demoReference = createElement("p", "sandbox-demo-reference", `Demo reference: ${preview.id}`);
+  review.append(demoReference);
   const rows = [
     ["Student reference", details.reference],
     ["Country", details.country],
     ["Amount entered", `${details.amount} ${details.currency}`],
     ["Provider selected", details.provider],
     ["Registered phone number", details.phone],
-    ["Fees", "Not calculated"],
-    ["Exchange rate", "Not available"],
-    ["Total payable", "Not calculated"],
+    ["Request status", "Preview created — no payment started"],
+    ["Provider instruction", "Not sent"],
+    ["Customer authorisation", "Not requested"],
+    ["Customer debit", "Not performed"],
+    ["Merchant payment", "Not confirmed"],
+    ["Settlement", "Not initiated"],
   ];
   const list = createElement("dl", "payment-review-list");
   for (const [label, value] of rows) {
@@ -192,9 +194,36 @@ function showReview(details, merchant) {
   review.append(list);
   const warning = createElement("p", "payment-form-status");
   warning.setAttribute("role", "status");
-  warning.textContent = "No payment will be made. WeduPay has no active provider integration and cannot authorise this payment.";
+  warning.textContent = "The demo record expires after seven days and is purged on a later sandbox request. No provider integration is active. The phone number and student reference shown above were not sent to or stored by the sandbox API.";
   review.append(warning);
   dashboardView.append(review);
+  const journey = createElement("section", "sandbox-journey");
+  journey.append(createElement("h2", "", "Fund movement journey"));
+  journey.append(createElement("p", "sandbox-journey-note", "WeduPay coordinates a future payment flow; it does not hold customer funds. No fund movement has occurred in this demonstration."));
+  const createdEvent = preview.events?.find((item) => item.type === "DEMO_PREVIEW_CREATED");
+  const stages = [
+    ["Demo preview record created", createdEvent ? "SIMULATED · NOT A PAYMENT" : "NOT RECORDED"],
+    ["Instruction submitted to provider", "NOT PERFORMED"],
+    ["Customer authorisation", "NOT PERFORMED"],
+    ["Provider debit confirmation", "NOT PERFORMED"],
+    ["Merchant payment confirmation", "NOT PERFORMED"],
+    ["Merchant settlement", "NOT PERFORMED"],
+  ];
+  const timeline = createElement("ol", "sandbox-journey-list");
+  stages.forEach(([label, status], index) => {
+    const item = createElement("li", index === 0 ? "is-demo-event" : "is-not-performed");
+    item.append(createElement("span", "journey-step-dot", ""));
+    const content = createElement("div", "journey-step-content");
+    content.append(createElement("strong", "", label));
+    content.append(createElement("small", "", status));
+    item.append(content);
+    timeline.append(item);
+  });
+  journey.append(timeline);
+  if (createdEvent?.createdAt) {
+    journey.append(createElement("p", "sandbox-journey-timestamp", `Demo record created ${new Date(createdEvent.createdAt).toLocaleString()}. This timestamp applies only to the demonstration record.`));
+  }
+  dashboardView.append(journey);
 }
 
 function pageForRoute(route) {
@@ -264,41 +293,90 @@ document.addEventListener("click", (event) => {
 });
 
 document.addEventListener("change", (event) => {
-  if (event.target.id !== "payment-country") return;
-  const providerSelect = document.querySelector("#payment-provider");
-  providerSelect.replaceChildren(new Option("Select a provider example", ""));
-  (countryProviders[event.target.value] || []).forEach((provider) => {
-    providerSelect.add(new Option(provider, provider));
-  });
-  providerSelect.disabled = !event.target.value;
+  if (event.target.id === "payment-country") {
+    const providerSelect = document.querySelector("#payment-provider");
+    providerSelect.replaceChildren(new Option("Select a provider example", ""));
+    (paymentOptions.providersByCountry[event.target.value] || []).forEach((provider) => {
+      providerSelect.add(new Option(provider, provider));
+    });
+    providerSelect.disabled = !event.target.value;
+
+    const currencySelect = document.querySelector("#payment-currency");
+    currencySelect.replaceChildren(new Option("Select currency", ""));
+    (paymentOptions.currenciesByCountry[event.target.value] || []).forEach((currency) => {
+      currencySelect.add(new Option(currency, currency));
+    });
+    currencySelect.disabled = !event.target.value;
+  }
 });
 
-document.addEventListener("submit", (event) => {
+document.addEventListener("submit", async (event) => {
   if (event.target.id !== "payment-preview-form") return;
   event.preventDefault();
   const form = event.target;
   if (!form.reportValidity()) return;
   const data = new FormData(form);
-  const amount = Number(data.get("amount"));
+  const amount = String(data.get("amount")).trim();
   const status = document.querySelector("#payment-form-status");
   if (!String(data.get("reference")).trim() || !String(data.get("phone")).trim()) {
     status.textContent = "Enter the required reference and registered phone number.";
     status.hidden = false;
     return;
   }
-  if (!Number.isFinite(amount) || amount <= 0 || amount > 1_000_000) {
+  if (!/^(?:0|[1-9]\d{0,8})(?:\.\d{1,2})?$/.test(amount) || Number(amount) <= 0) {
     status.textContent = "Enter an amount between 0.01 and 1,000,000.";
     status.hidden = false;
     return;
   }
   const merchant = merchantRegistry.find((item) => item.id === form.dataset.merchant && item.enabled);
   if (!merchant) return;
-  showReview({
-    country: String(data.get("country")),
-    reference: String(data.get("reference")).trim(),
-    amount: amount.toFixed(2),
-    currency: String(data.get("currency")),
-    provider: String(data.get("provider")),
-    phone: String(data.get("phone")).trim(),
-  }, merchant);
+  const button = form.querySelector('button[type="submit"]');
+  button.disabled = true;
+  button.textContent = "Creating demo preview…";
+  status.hidden = true;
+  try {
+    const response = await fetch("/api/v1/sandbox-payment", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "Idempotency-Key": form.dataset.idempotencyKey || (form.dataset.idempotencyKey = crypto.randomUUID()),
+      },
+      body: JSON.stringify({
+        merchantId: merchant.id,
+        country: String(data.get("country")),
+        amount,
+        currency: String(data.get("currency")),
+        provider: String(data.get("provider")),
+      }),
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(result.error || "The sandbox is unavailable. No demo record or payment was created.");
+    }
+    const lookupResponse = await fetch(`/api/v1/sandbox-payment/${encodeURIComponent(result.id)}`, {
+      headers: { Accept: "application/json" },
+    });
+    const persistedPreview = await lookupResponse.json().catch(() => ({}));
+    if (!lookupResponse.ok) {
+      throw new Error(persistedPreview.error || "The demo record was created but could not be loaded. No payment was initiated.");
+    }
+    showReview({
+      country: persistedPreview.country,
+      reference: String(data.get("reference")).trim(),
+      amount: String(persistedPreview.amount),
+      currency: persistedPreview.currency,
+      provider: persistedPreview.provider,
+      phone: String(data.get("phone")).trim(),
+    }, merchant, persistedPreview);
+  } catch (error) {
+    console.error("Sandbox preview request failed.", error);
+    status.textContent = `${error.message || "The sandbox is unavailable."} No payment was initiated, and your phone number and student reference were not sent.`;
+    status.hidden = false;
+  } finally {
+    if (button.isConnected) {
+      button.disabled = false;
+      button.innerHTML = 'Create demo preview <span aria-hidden="true">→</span>';
+    }
+  }
 });

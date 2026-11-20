@@ -833,6 +833,18 @@ h1, h2, h3, p { margin-top: 0; }
 .journey-step-content small { color: #8998a5; font-size: 7px; font-weight: 800; letter-spacing: .06em; text-align: right; }
 .is-demo-event .journey-step-content small { color: #176b8d; }
 .sandbox-journey-timestamp { margin: 0; padding-top: 9px; border-top: 1px solid #edf1f4; color: #718295; font-size: 8px; line-height: 1.6; }
+.demo-code-card, .demo-approval-card, .demo-complete-card { max-width: 700px; }
+.demo-message { margin: 17px 0; padding: 16px; border: 1px solid #d5e2e9; border-radius: 8px; background: #f3f7fa; }
+.demo-message-label { display: inline-block; margin-bottom: 8px; color: #176b8d; font-size: 8px; font-weight: 800; letter-spacing: .1em; }
+.demo-message p { margin: 0; color: #30475c; font-size: 11px; line-height: 1.65; }
+.demo-message small { display: block; margin-top: 9px; color: #78899a; font-size: 8px; line-height: 1.5; }
+.demo-code-form { display: grid; max-width: 380px; gap: 9px; }
+.demo-code-form label { color: #30475c; font-size: 9px; font-weight: 700; }
+.demo-code-form input { width: 100%; min-height: 44px; padding: 0 12px; border: 1px solid #cbd9e3; border-radius: 4px; background: #fff; color: #192b3f; font-size: 15px; letter-spacing: .18em; }
+.demo-code-form input:focus { border-color: #247fa3; outline: 2px solid rgba(36,127,163,.18); }
+.demo-code-form .payment-field-note { margin: 0; color: #718295; font-size: 8px; line-height: 1.6; }
+.demo-code-form button, .demo-approval-card > button { justify-self: start; margin-top: 7px; }
+.demo-destination-note { margin: 16px 0; padding: 12px 14px; border-left: 3px solid #247fa3; background: #e8f3f8; color: #40596e; font-size: 9px; line-height: 1.7; }
 
 @media (max-width: 1050px) {
   .dashboard-sidebar { width: 226px; }

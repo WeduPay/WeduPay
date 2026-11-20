@@ -2,6 +2,7 @@ const dashboardView = document.querySelector("#dashboard-view");
 const merchantRegistry = window.WeduPayMerchants || [];
 const paymentOptions = window.WeduPayPaymentOptions || { providersByCountry: {}, currenciesByCountry: {} };
 const previewBanner = document.querySelector("#dashboard-preview-banner");
+const demoApprovalCode = "123456";
 if (new URLSearchParams(window.location.search).get("demo") === "1") {
   const message = createElement("p");
   message.append(createElement("strong", "", "Fictional demo session. "));
@@ -223,6 +224,152 @@ function showReview(details, merchant, preview) {
   dashboardView.append(journey);
 }
 
+function appendDemoDetails(target, details) {
+  const rows = [
+    ["Student reference", details.reference],
+    ["Country", details.country],
+    ["Amount entered", `${details.amount} ${details.currency}`],
+    ["Provider selected", details.provider],
+    ["Registered phone number", details.phone],
+  ];
+  const list = createElement("dl", "payment-review-list");
+  rows.forEach(([label, value]) => {
+    const row = createElement("div", "payment-review-row");
+    row.append(createElement("dt", "", label), createElement("dd", "", value));
+    list.append(row);
+  });
+  target.append(list);
+}
+
+function demoJourney(title, description, stages) {
+  const section = createElement("section", "sandbox-journey");
+  section.append(createElement("h2", "", title));
+  section.append(createElement("p", "sandbox-journey-note", description));
+  const list = createElement("ol", "sandbox-journey-list");
+  stages.forEach(([label, status, complete]) => {
+    const item = createElement("li", complete ? "is-demo-event" : "is-not-performed");
+    item.append(createElement("span", "journey-step-dot", ""));
+    const content = createElement("div", "journey-step-content");
+    content.append(createElement("strong", "", label));
+    content.append(createElement("small", "", status));
+    item.append(content);
+    list.append(item);
+  });
+  section.append(list);
+  return section;
+}
+
+function showDemoReview(details, merchant) {
+  dashboardView.replaceChildren();
+  dashboardView.append(pageHeading("Payment journey · Demonstration", "Review demo payment", "Check the details before continuing through the simulated provider approval steps."));
+  dashboardView.insertAdjacentHTML("beforeend", previewCallout("BROWSER-ONLY DEMO. These details stay in this browser. No payment instruction has been sent and no funds have moved."));
+  const panel = createElement("section", "payment-review-card");
+  panel.append(createElement("p", "dashboard-eyebrow", "STEP 1 · REVIEW"));
+  panel.append(createElement("h2", "", merchant.name));
+  appendDemoDetails(panel, details);
+  panel.append(createElement("p", "payment-form-status", "A real WeduPay payment flow is not connected. Do not enter real payment details, passwords, PINs, or OTPs."));
+  const continueButton = createElement("button", "dashboard-primary-link", "Continue to simulated verification");
+  continueButton.type = "button";
+  continueButton.id = "show-demo-code";
+  continueButton.addEventListener("click", () => showDemoCode(details, merchant));
+  panel.append(continueButton);
+  dashboardView.append(panel);
+}
+
+function showDemoCode(details, merchant) {
+  dashboardView.replaceChildren();
+  dashboardView.append(pageHeading("Payment journey · Demonstration", "Simulated provider code", "A real provider would deliver an authorization challenge through its approved channel."));
+  dashboardView.insertAdjacentHTML("beforeend", previewCallout("NO SMS OR OTP WAS SENT. The sample code below is fictional and exists only in this browser demo. Never use a real wallet OTP here."));
+  const panel = createElement("section", "payment-review-card demo-code-card");
+  panel.append(createElement("p", "dashboard-eyebrow", "STEP 2 · SIMULATED VERIFICATION"));
+  panel.append(createElement("h2", "", "Example provider message"));
+  const message = createElement("div", "demo-message");
+  message.append(createElement("span", "demo-message-label", `SIMULATED · ${details.provider}`));
+  message.append(createElement("p", "", `WeduPay demo: your fictional verification code is ${demoApprovalCode}. No payment is being authorized.`));
+  message.append(createElement("small", "", "Illustration only—not an actual SMS or provider notification."));
+  panel.append(message);
+  const form = createElement("form", "demo-code-form");
+  form.id = "demo-code-form";
+  form.innerHTML = `<label for="demo-approval-code">Enter the sample code</label>
+    <input id="demo-approval-code" name="code" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="off" placeholder="6-digit demo code" required>
+    <p class="payment-field-note">Enter the sample code shown above. Do not enter an OTP received from a real wallet or provider.</p>
+    <button class="dashboard-primary-link" type="submit">Verify demo code <span aria-hidden="true">→</span></button>
+    <p class="payment-form-status" id="demo-code-status" role="status" aria-live="polite" hidden></p>`;
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const code = form.querySelector("#demo-approval-code").value;
+    const status = form.querySelector("#demo-code-status");
+    if (code !== demoApprovalCode) {
+      status.textContent = "That isn't the displayed sample code. This demo does not send or verify real OTPs.";
+      status.hidden = false;
+      return;
+    }
+    showDemoApproval(details, merchant);
+  });
+  panel.append(form);
+  dashboardView.append(panel);
+  dashboardView.append(demoJourney("Demonstration progress", "Only the steps marked simulated happen in this browser. No external service is contacted.", [
+    ["Payment details reviewed", "SIMULATED IN BROWSER", true],
+    ["Example code displayed", "SIMULATED · NOT SENT", true],
+    ["Code check", "AWAITING DEMO INPUT", false],
+    ["Wallet authorization", "NOT PERFORMED", false],
+    ["Wallet debit", "NOT PERFORMED", false],
+  ]));
+}
+
+function showDemoApproval(details, merchant) {
+  dashboardView.replaceChildren();
+  dashboardView.append(pageHeading("Payment journey · Demonstration", "Review simulated approval", "This confirmation step demonstrates the proposed user interaction only."));
+  dashboardView.insertAdjacentHTML("beforeend", previewCallout("The sample code was checked locally in your browser. No provider verified your identity or authorized a real payment."));
+  const panel = createElement("section", "payment-review-card demo-approval-card");
+  panel.append(createElement("p", "dashboard-eyebrow", "STEP 3 · DEMO CONFIRMATION"));
+  panel.append(createElement("h2", "", "Proposed payment"));
+  appendDemoDetails(panel, details);
+  panel.append(createElement("p", "demo-destination-note", "Illustrative destination: an institution-designated settlement account through an authorized payment partner, if such an arrangement is established. No BYU-Pathway bank account or settlement route is verified or connected."));
+  panel.append(createElement("p", "payment-form-status", "Selecting the button completes only the presentation walkthrough. It will not debit a wallet or transfer funds."));
+  const approveButton = createElement("button", "dashboard-primary-link", "Approve demo only");
+  approveButton.type = "button";
+  approveButton.id = "approve-demo-payment";
+  approveButton.addEventListener("click", () => showDemoComplete(details, merchant));
+  panel.append(approveButton);
+  dashboardView.append(panel);
+  dashboardView.append(demoJourney("Fund movement status", "The future arrangement would depend on authorized providers and an agreed merchant settlement route. WeduPay does not hold customer funds.", [
+    ["Demo details reviewed", "SIMULATED IN BROWSER", true],
+    ["Fictional code checked", "SIMULATED IN BROWSER", true],
+    ["Demo approval", "AWAITING PRESENTATION", false],
+    ["Instruction to mobile money provider", "NOT SENT", false],
+    ["Customer wallet debit", "NOT PERFORMED", false],
+    ["Transfer to institution account", "NOT PERFORMED", false],
+    ["Institution receipt / settlement", "NOT CONFIRMED", false],
+  ]));
+}
+
+function showDemoComplete(details, merchant) {
+  dashboardView.replaceChildren();
+  dashboardView.append(pageHeading("Payment journey · Demonstration", "Walkthrough complete — no payment made", "You completed the presentation flow. No real payment was authorized or processed."));
+  dashboardView.insertAdjacentHTML("beforeend", previewCallout("DEMO ONLY. No OTP was sent, no provider was contacted, no wallet was debited, and no money was transferred to BYU-Pathway or any bank account."));
+  const summary = createElement("section", "payment-review-card demo-complete-card");
+  summary.append(createElement("p", "dashboard-eyebrow", "BROWSER-ONLY DEMONSTRATION · Not saved"));
+  summary.append(createElement("h2", "", merchant.name));
+  appendDemoDetails(summary, details);
+  summary.append(createElement("p", "demo-destination-note", "Illustrative future route only: customer mobile money account → authorized payment provider / settlement partner → institution-designated account. The actual provider, receiving account, and settlement arrangement are not yet established."));
+  summary.append(createElement("p", "payment-form-status", "This demonstration data is only held in the current page memory and will be discarded when you leave or reload."));
+  const restart = createElement("a", "dashboard-outline-link", "Start the demo again");
+  restart.href = `#pay/${merchant.id}`;
+  summary.append(restart);
+  dashboardView.append(summary);
+  dashboardView.append(demoJourney("Demonstration steps", "The approval interaction was simulated. The actual money movement stages remain unperformed.", [
+    ["Payment details reviewed", "SIMULATED IN BROWSER", true],
+    ["Fictional verification code displayed", "SIMULATED · NOT SENT", true],
+    ["Fictional code checked", "SIMULATED IN BROWSER", true],
+    ["Demo approval selected", "SIMULATED IN BROWSER", true],
+    ["Instruction sent to provider", "NOT SENT", false],
+    ["Customer wallet debit", "NOT PERFORMED", false],
+    ["Transfer to institution account", "NOT PERFORMED", false],
+    ["Institution receipt / settlement", "NOT CONFIRMED", false],
+  ]));
+}
+
 function pageForRoute(route) {
   if (route === "overview") return overview();
   if (route === "merchants") return merchantDirectory();
@@ -328,15 +475,12 @@ document.addEventListener("submit", (event) => {
   const merchant = merchantRegistry.find((item) => item.id === form.dataset.merchant && item.enabled);
   if (!merchant) return;
   status.hidden = true;
-  showReview({
+  showDemoReview({
     country: String(data.get("country")),
     reference: String(data.get("reference")).trim(),
     amount: Number(amount).toFixed(2),
     currency: String(data.get("currency")),
     provider: String(data.get("provider")),
     phone: String(data.get("phone")).trim(),
-  }, merchant, {
-    id: `DEMO-${Date.now().toString(36).toUpperCase()}`,
-    events: [{ type: "DEMO_PREVIEW_SHOWN", createdAt: new Date().toISOString() }],
-  });
+  }, merchant);
 });

@@ -8,6 +8,10 @@ The site is a static HTML, CSS, and JavaScript landing page with a linked, publi
 
 Serve the repository root with any static file server and open `index.html`. Use the landing-page Sign In link to see the phone-number sign-in preview, then choose “Explore the dashboard preview” to navigate the public dashboard concept. You can also open `dashboard.html` directly. In the tuition walkthrough, review the details, continue to the visibly fictional code `123456`, verify it locally, then select “Approve demo only” to reach the final “no payment made” screen. The journey works without backend configuration and clears when the page is reloaded or left. Do not use real wallet OTPs, credentials, or PINs in the presentation demo. The dashboard merchant and wallet-provider examples are centralized in `merchant-registry.js`; they are planning references, not verified partnerships or live integrations. The waitlist and separate sandbox API endpoints require Vercel-compatible functions and remain unavailable in a static-only preview.
 
+## Public presentation preview
+
+The GitHub Pages workflow publishes the static concept site from `main` and the presentation branch. The direct tuition walkthrough URL is `https://wedupay.github.io/WeduPay/dashboard.html?demo=1#pay/byu-pathway`. GitHub Pages serves only static files: the demo remains browser-only, and the waitlist/API endpoints are not available there. Share the direct walkthrough URL for presentations; no real OTP, wallet connection, debit, or settlement occurs.
+
 ## Waitlist deployment
 
 Do not enable collection until the privacy and terms drafts have been reviewed, the company/contact placeholders are resolved, data retention and deletion procedures are approved, and all storage providers are configured.

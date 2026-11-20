@@ -102,12 +102,12 @@ function emptyPage(route) {
   }
   if (route === "profile") {
     return `${pageHeading("Your account", "Profile & settings", "Account management will be available when WeduPay authentication is implemented.").outerHTML}
-      <div class="empty-state"><span class="empty-state-icon">○</span><h2>No customer profile</h2><p>This public dashboard preview has no signed-in user. No name, email, phone number, or preferences are stored.</p><a class="dashboard-outline-link" href="/sign-in.html">Open phone sign-in preview</a></div>`;
+      <div class="empty-state"><span class="empty-state-icon">○</span><h2>No customer profile</h2><p>This public dashboard preview has no signed-in user. No name, email, phone number, or preferences are stored.</p><a class="dashboard-outline-link" href="./sign-in.html">Open phone sign-in preview</a></div>`;
   }
   return `${pageHeading("We’re here to help", "Help & support", "WeduPay is in development. Reach out through the early-interest form while we prepare the service.").outerHTML}
     <div class="dashboard-help-grid">
       <article class="dashboard-help-card"><span class="action-card-icon">?</span><h2>About this preview</h2><p>Explore the proposed customer experience. No account, merchant integration, or mobile-money provider connection is active.</p></article>
-      <article class="dashboard-help-card"><span class="action-card-icon">✉</span><h2>Get in touch</h2><p>Join the waitlist to share your interest. Do not send PINs, passwords, or payment credentials.</p><a class="dashboard-outline-link" href="/#waitlist">Visit the early access waitlist</a></article>
+      <article class="dashboard-help-card"><span class="action-card-icon">✉</span><h2>Get in touch</h2><p>Join the waitlist to share your interest. Do not send PINs, passwords, or payment credentials.</p><a class="dashboard-outline-link" href="./#waitlist">Visit the early access waitlist</a></article>
     </div>`;
 }
 
